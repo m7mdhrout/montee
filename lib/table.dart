@@ -26,6 +26,7 @@ class _TablesState extends State<Tables> {
   bool isTableBuilt = false;
   final double cellWidthAndHeight = 30;
   Color cellColor = Colors.grey[50];
+  bool lost = false;
 
   @override
   Widget build(BuildContext context) {
@@ -114,14 +115,14 @@ class _TablesState extends State<Tables> {
     int antX = ant.getXAxis();
     int antY = ant.getYAxis();
 
-    spiderPossiblePlace(x + 1, y + 2, moveDirection.topRight, Colors.red);
-    spiderPossiblePlace(x - 1, y + 2, moveDirection.topLeft, Colors.red);
-    spiderPossiblePlace(x + 1, y - 2, moveDirection.bottomRight, Colors.red);
-    spiderPossiblePlace(x - 1, y - 2, moveDirection.bottomLeft, Colors.red);
-    spiderPossiblePlace(x + 2, y + 1, moveDirection.rightTop, Colors.red);
-    spiderPossiblePlace(x + 2, y - 1, moveDirection.rightBottom, Colors.red);
-    spiderPossiblePlace(x - 2, y + 1, moveDirection.leftTop, Colors.red);
-    spiderPossiblePlace(x - 2, y - 1, moveDirection.leftBottom, Colors.red);
+    spiderPossiblePlace(x + 1, y - 2, moveDirection.topRight, Colors.red);
+    spiderPossiblePlace(x - 1, y - 2, moveDirection.topLeft, Colors.red);
+    spiderPossiblePlace(x + 1, y + 2, moveDirection.bottomRight, Colors.red);
+    spiderPossiblePlace(x - 1, y + 2, moveDirection.bottomLeft, Colors.red);
+    spiderPossiblePlace(x + 2, y - 1, moveDirection.rightTop, Colors.red);
+    spiderPossiblePlace(x + 2, y + 1, moveDirection.rightBottom, Colors.red);
+    spiderPossiblePlace(x - 2, y - 1, moveDirection.leftTop, Colors.red);
+    spiderPossiblePlace(x - 2, y + 1, moveDirection.leftBottom, Colors.red);
 
     checkEat(antX, antY, x, y);
   }
@@ -143,11 +144,19 @@ class _TablesState extends State<Tables> {
       remover(ant.getXAxis(), ant.getYAxis(), cellColor);
       ant.setNewPosition(Random().nextInt(rows.length - 4) + 2,
           Random().nextInt(rows.length - 4) + 2);
+
     }
+
     rows[y].children[x] = TableCell(
       child: Container(
         color: c,
         height: cellWidthAndHeight,
+        child:TextButton(
+          child:Text(''),
+          onPressed: (){
+            moveSpider(direction);
+          },
+        )
       ),
     );
   }
@@ -157,11 +166,8 @@ class _TablesState extends State<Tables> {
       child: Container(
         color: c,
         height: cellWidthAndHeight,
-        child: TextButton(
-          onPressed: () {
-            moveAnt(direction);
-          },
-        ),
+
+
       ),
     );
   }
@@ -176,6 +182,7 @@ class _TablesState extends State<Tables> {
   }
 
   void moveSpider(moveDirection direction) {
+    moveAnt();
     setState(() {
       removeSpiderPossiblePlaces();
       spider.setDirection(direction);
@@ -185,23 +192,55 @@ class _TablesState extends State<Tables> {
       checkLosing();
 
       colorTable();
+      checkEatAuto(ant.getXAxis(), ant.getYAxis(), spider.getXAxis(), spider.getYAxis());
 
-      checkEat(ant.getXAxis(), ant.getYAxis(), spider.getXAxis(), spider.getYAxis());
+
     });
+    print('spider x=${spider.getXAxis()} y=${spider.getYAxis()}');
     t.insertRoot(spider.getXAxis(), spider.getYAxis());
     t.buildTree(spider.getXAxis(), spider.getYAxis(), t.root);
+
+  }
+  void autoMoveSpider() {
+    int x = spider.getXAxis();
+    int y = spider.getYAxis();
+    int antX = ant.getXAxis();
+    int antY = ant.getYAxis();
+
+    spiderPossiblePlace(x + 1, y - 2, moveDirection.topRight, Colors.red);
+    spiderPossiblePlace(x - 1, y - 2, moveDirection.topLeft, Colors.red);
+    spiderPossiblePlace(x + 1, y + 2, moveDirection.bottomRight, Colors.red);
+    spiderPossiblePlace(x - 1, y + 2, moveDirection.bottomLeft, Colors.red);
+    spiderPossiblePlace(x + 2, y - 1, moveDirection.rightTop, Colors.red);
+    spiderPossiblePlace(x + 2, y + 1, moveDirection.rightBottom, Colors.red);
+    spiderPossiblePlace(x - 2, y - 1, moveDirection.leftTop, Colors.red);
+    spiderPossiblePlace(x - 2, y + 1, moveDirection.leftBottom, Colors.red);
+
+    checkEat(antX, antY, x, y);
   }
 
-  void moveAnt(antMoveDirection direction) {
-    setState(() {
-      removeAntPossiblePlaces();
-      ant.setDirection(direction);
+  void moveAnt() {
+    setState(()  {
+     remover(ant.getXAxis(), ant.getYAxis(), Colors.grey[50]);
+      int z=Random().nextInt(2);
+     bool moveRight=z==1?true:false;
+
+
+      if(moveRight )
+        ant.setDirection(antMoveDirection.right);
+      else
+        ant.setDirection(antMoveDirection.left);
+
       ant.move();
+      if(ant.getXAxis()<2)
+        ant.setNewPosition(2, ant.getYAxis());
+      if(ant.getXAxis()>rows.length-3)
+        ant.setNewPosition(rows.length-3, ant.getYAxis());
       antPlace(ant.getXAxis(), ant.getYAxis());
     });
+    print('ant x=${ant.getXAxis()} y=${ant.getYAxis()}');
   }
 
-  bool lost = false;
 
   void checkLosing() {
     int x = spider.getXAxis();
@@ -213,10 +252,12 @@ class _TablesState extends State<Tables> {
       });
     }
   }
-
-  void checkEat(int antX, int antY, int x, int y) {
-    if (antX != ant.getXAxis() && antY != ant.getYAxis()) {
+  void checkEatAuto(int antX, int antY, int x, int y) {
+    if (antX == spider.getXAxis() && antY == spider.getYAxis()) {
       removeSpiderPossiblePlaces();
+      remover(ant.getXAxis(), ant.getYAxis(), cellColor);
+      ant.setNewPosition(Random().nextInt(rows.length - 4) + 2,
+          Random().nextInt(rows.length - 4) + 2);
       spider.setNewPosition(antX, antY);
       remover(x, y, cellColor);
 
@@ -227,7 +268,23 @@ class _TablesState extends State<Tables> {
       breadth.shortestPath();
       Spider.spiderScore++;
     }
-    // print('Spider Score: ${Spider.spiderScore}');
+    print('Spider Score: ${Spider.spiderScore}');
+  }
+  void checkEat(int antX, int antY, int x, int y) {
+    if (antX != ant.getXAxis() && antY != ant.getYAxis()) {
+      removeSpiderPossiblePlaces();
+      remover(antX, antY, cellColor);
+      spider.setNewPosition(antX, antY);
+      remover(x, y, cellColor);
+
+      t.insertRoot(spider.getXAxis(), spider.getYAxis());
+      t.buildTree(spider.getXAxis(), spider.getYAxis(), t.root);
+
+      Breadth breadth = Breadth(spider: spider, ant: ant, tree: t);
+      breadth.shortestPath();
+      Spider.spiderScore++;
+    }
+     print('Spider Score: ${Spider.spiderScore}');
   }
 
   void removeSpiderPossiblePlaces() {
