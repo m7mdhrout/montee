@@ -32,7 +32,8 @@ class Spider {
         break;
     }
   }
-  void setDirection(moveDirection m){
+
+  void setDirection(moveDirection m) {
     _direction = m;
   }
 

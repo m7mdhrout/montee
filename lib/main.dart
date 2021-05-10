@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:projectaii/screens/gameScreen.dart';
-import 'package:projectaii/screens/home.dart';
+import 'package:projectaii/screens/breadthScreen.dart';
+import 'package:projectaii/screens/depthScreen.dart';
+import 'package:projectaii/screens/manualScreen.dart';
+
+import 'screens/home.dart';
 
 void main() => runApp(MyApp());
 
@@ -11,7 +14,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Spider Game',
-      home: GameScreen(),
+      initialRoute: Home.id,
+      routes: {
+        Home.id: (context) => Home(),
+        ManualGameScreen.id: (context) => ManualGameScreen(),
+        BreadthScreen.id: (context) => BreadthScreen(),
+        DepthScreen.id: (context) => DepthScreen(),
+      },
     );
   }
 }
