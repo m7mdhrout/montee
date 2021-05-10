@@ -415,7 +415,6 @@ class _AllState extends State<All> {
       [-2, -1], //6 left top
       [-1, -2], //7 top left
     ];
-    // moveSpider1(newSpiderPlaces[1][0], newSpiderPlaces[1][1]);
 
     List open = [
       [xSpider, ySpider]
