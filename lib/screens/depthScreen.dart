@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:collection';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -42,6 +44,9 @@ class _AllState extends State<All> {
   bool lost = false;
   int spiderScore = 0;
   int antScore = 0;
+
+  Queue q = Queue();
+  Map visit = {};
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +116,10 @@ class _AllState extends State<All> {
                   height: 70,
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      lost=!lost;
+                    });},
                   child: Text(
                     'Start/Stop',
                     style: TextStyle(
@@ -134,7 +142,8 @@ class _AllState extends State<All> {
                   height: 30,
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pop(context);},
                   child: Text(
                     'End',
                     style: TextStyle(
@@ -193,15 +202,14 @@ class _AllState extends State<All> {
           onPressed: () {
             setState(() {
               // lost ? null : possiblePlaceOfSpider();
-              lost
-                  ? null
-                  : dfs(ant.getXAxis(), ant.getYAxis(), spider.getXAxis(),
-                      spider.getYAxis());
-
-              // Timer.periodic(
-              //     Duration(milliseconds: 500),
-              //     (Timer t) => dfs(ant.getXAxis(), ant.getYAxis(),
-              //         spider.getXAxis(), spider.getYAxis()));
+              // lost
+              //     ? null
+              //     : bfs(ant.getXAxis(), ant.getYAxis(), spider.getXAxis(),
+              //     spider.getYAxis());
+Timer.periodic(
+                  Duration(milliseconds: 1000),
+                  (Timer t) => bfs(ant.getXAxis(), ant.getYAxis(),
+                      spider.getXAxis(), spider.getYAxis()));
             });
           },
         ),
@@ -404,7 +412,27 @@ class _AllState extends State<All> {
     }
   }
 
-  void dfs(int xAnt, int yAnt, int xSpider, int ySpider) {
+  List parent = [];
+  List lastChild = [];
+  List childOfParent = [];
+  int level = 1;
+
+  void clearPast() {
+    parent = [];
+    lastChild = [];
+    level = 1;
+    // childOfParent = [];
+  }
+
+  void reset() {
+    visit.clear();
+    q.clear();
+    result.clear();
+  }
+
+  List result = [];
+
+  void bfs(int xAnt, int yAnt, int xSpider, int ySpider) {
     List newSpiderPlaces = [
       [1, -2], //0 top right
       [2, -1], //1 right top
@@ -415,18 +443,24 @@ class _AllState extends State<All> {
       [-2, -1], //6 left top
       [-1, -2], //7 top left
     ];
-
-    List open = [
-      [xSpider, ySpider]
-    ];
+    Queue open = Queue();
+    open.add([xSpider, ySpider]);
     List closed = [];
     while (open.isNotEmpty) {
-      List temp = open.removeAt(0);
+      List temp = open.removeFirst();
       if (temp[0] == xAnt && temp[1] == yAnt) {
-        setDirection(open[0][0], open[0][1]);
-        print('${open[0][0]} ${open[0][1]}');
-        print('goal');
-        print(open);
+        print('Goal Found!!'); // Goal Found !!
+        print('x = $xAnt y = $yAnt');
+        // if (level == 1) {
+        //   setDirection(temp[0], temp[1]);
+        // } else {
+        //   while (level > 1) {
+        //     parent.removeAt(0);
+        //     lastChild.removeLast();
+        //     level--;
+        //   }
+          setDirection(parent[level-1][0], parent[level-1][1]);
+        // }
         return;
       } else {
         List children = [];
@@ -441,12 +475,11 @@ class _AllState extends State<All> {
             ]);
           }
         }
-
         closed.add(temp);
-
         for (int i = 0; i < open.length; i++) {
           for (int j = 0; j < children.length; j++) {
-            if (children[j][0] == open[i][0] && children[j][1] == open[i][1]) {
+            if (children[j][0] == open.elementAt(0)[0] &&
+                children[j][1] == open.elementAt(0)[1]) {
               children.remove(children[j]);
             }
           }
@@ -459,10 +492,27 @@ class _AllState extends State<All> {
             }
           }
         }
+        if(children.length>0){
+        if (lastChild.length > 0) {
+          lastChild.insert(
+              lastChild.length - 1, children.elementAt(children.length - 1));
+        } else {
+          lastChild.add(children.elementAt(children.length - 1));
+          }
+        }
 
+        parent.add(temp);
+        childOfParent.add(children);
+        if (temp[0] == lastChild.elementAt(lastChild.length - 1)[0] &&
+            temp[1] == lastChild.elementAt(lastChild.length - 1)[1]) {
+          level++;
+          parent.removeAt(0);
+          lastChild.removeLast();
+        }
         for (int i = 0; i < children.length; i++) {
           open.add([children[i][0], children[i][1]]);
         }
+        // print(open);
       }
     }
     return;
@@ -488,5 +538,6 @@ class _AllState extends State<All> {
     } else if (x == xSpider - 2 && y == ySpider + 1) {
       moveSpider(moveDirection.leftBottom);
     }
+    clearPast();
   }
 }

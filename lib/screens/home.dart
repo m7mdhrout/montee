@@ -51,8 +51,32 @@ class Home extends StatelessWidget {
             ),
             ElevatedButton(
               style: ButtonStyle(),
-              onPressed: () {},
+              onPressed: null,
+              child: Text('new Game as heuristic function '),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              style: ButtonStyle(),
+              onPressed: null,
               child: Text('new Game as heuristic function 2'),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              style: ButtonStyle(),
+              onPressed: null,
+              child: Text('new Game as heuristic function 3'),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+              style: ButtonStyle(),
+              onPressed: null,
+              child: Text('new Game as A*'),
             ),
           ],
         ),
