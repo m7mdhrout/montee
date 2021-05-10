@@ -417,20 +417,13 @@ class _AllState extends State<All> {
       [-2, -1], //6 left top
       [-1, -2], //7 top left
     ];
-    // moveSpider1(newSpiderPlaces[1][0], newSpiderPlaces[1][1]);
-    int level = 0;
     List open = [
       [xSpider, ySpider]
     ];
     List closed = [];
     while (open.isNotEmpty) {
-      level++;
       List temp = open.removeAt(0);
-      if (temp[0] == xAnt && temp[1] == yAnt) {
-        // print('Goal Found!');
-        // print('x = ${ant.getXAxis()} y = ${ant.getYAxis()}');
-        // print(closed);
-        // print(level);
+      if (temp[0] == xAnt && temp[1] == yAnt) {// Goal Found !!
         setDirection(closed[0][0], closed[0][1]);
         return;
       } else {
